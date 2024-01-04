@@ -20,4 +20,84 @@ HOG hoạt độg dựa trên hình dạng của một vật thể cục bộ đ
 Bộ mô tả HOG có một vài lời thế chính so với các bộ mô tả khác. Vì nó hoạt động trên các ô cục bộ nó bất biến đối với các biến đổi hình học thay đổi độ sáng.  
 ## 2.1 Tính toán gradient
 Tiền xử lý dữ liệu ảnh gồm chuẩn hóa màu sắc và giá trị gamma. Cái này bị bỏ qua trong bộ mô tả HOG, vì việc chuẩn hóa bộ mô tả ở các bước tiếp theo đã đạt được kết quả tương tự. Thay vào đó tại bước đầu tiên của tính toán mô tả chúng ta sẽ tính các giá trị gradient. Phương pháp phổ biến nhất là áp dụng một mặt nạ đạo hàm rời rạc (discrete derivative mask) theo một hoặc cả hai chiều ngang và dọc. Cụ thể, phương pháp sẽ lọc ma trận cường độ ảnh với các bộ lọc như Sobel mask hoặc scharr.
-Để tính bộ lọc sobel, phép tích chập của kernel kích thước $3x3$ được thực hiện với hình ảnh ban đầu. Nếu chúng ta kí hiệu \mathbf{I}
+Để tính bộ lọc sobel, phép tích chập của kernel kích thước $3x3$ được thực hiện với hình ảnh ban đầu. Nếu chúng ta kí hiệu \mathbf{I} à ma trận ảnh gốc và 
+ là 2 ma trận ảnh mà mỗi điểm trên nó lần lượt là đạo hàm theo trục 
+ trục 
+. Chúng ta có thể tính toán được kernel như sau:
+
+
+$$G_x = \begin{bmatrix} -1 & 0 & 1 \\
+-2 & 0 & 2 \\
+-1 & 0 & 1 \\ \end{bmatrix} * \mathbf{I}$$
+
+Đạo hàm theo chiều dọc:
+$$G_y = \begin{bmatrix} -1 & -2 & -1 \\
+0 & 0 & 0 \\
+1 & 2 & 1 \\ \end{bmatrix} * \mathbf{I}$$
+
+Kí hiệu * tương tự như phép tích chập giữa bộ lọc bên trái và ảnh đầu vào bên phải.
+
+
+tính toán:
+import numpy as np
+import cv2
+import matplotlib.pyplot as plt
+
+img = plt.imread('pic.JPEG', cv2.IMREAD_UNCHANGED)
+gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+print('image shape:', img.shape)
+print('gray shape: ', gray.shape)
+
+plt.figure(figsize = (16, 4))
+plt.subplot(1, 2, 1)
+plt.imshow(img)
+plt.title('Original Image')
+plt.subplot(1, 2, 2)
+plt.imshow(gray)
+plt.title('Gray Image')
+1
+2
+image shape: (1120, 2016, 3)
+gray shape:  (1120, 2016)
+![image](https://github.com/khanhjt/Doc_Nautilus/assets/105477211/ef6707e8-0d74-46bd-85ca-b73a1fb5c78c)
+
+# Calculate gradient gx, gy
+gx = cv2.Sobel(gray, cv2.CV_32F, dx=0, dy=1, ksize=3)
+gy = cv2.Sobel(gray, cv2.CV_32F, dx=1, dy=0, ksize=3)
+
+print('gray shape: {}'.format(gray.shape))
+print('gx shape: {}'.format(gx.shape))
+print('gy shape: {}'.format(gy.shape))
+
+gray shape: (1120, 2016)
+gx shape: (1120, 2016)
+gy shape: (1120, 2016)
+
+g, theta = cv2.cartToPolar(gx, gy, angleInDegrees=True) 
+print('gradient format: {}'.format(g.shape))
+print('theta format: {}'.format(theta.shape))
+gradient format: (1120, 2016)
+theta format: (1120, 2016)
+
+w = 20
+h = 10
+
+plt.figure(figsize=(w, h))
+plt.subplot(1, 4, 1)
+plt.title('gradient of x')
+plt.imshow(gx)
+
+plt.subplot(1, 4, 2)
+plt.title('gradient of y')
+plt.imshow(gy)
+
+plt.subplot(1, 4, 3)
+plt.title('Magnitute of gradient')
+plt.imshow(g)
+
+plt.subplot(1, 4, 4)
+plt.title('Direction of gradient')
+plt.imshow(theta)
+![image](https://github.com/khanhjt/Doc_Nautilus/assets/105477211/d31f6418-a211-4fdb-b25b-efd850fabb10)
+
+
