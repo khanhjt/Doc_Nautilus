@@ -40,14 +40,12 @@ số lượng rất lớn và là nguyên nhân khiến quá trình huấn luy�
 * Mỗi một vật thể trong hình ảnh huấn luyện được phân bố về một cell trên feature map mà chứa điểm mid point của vật thể. Chẳng hạn như hình chú chó trong hình 3 sẽ được phân về cho cell màu đỏ vì điểm mid point của ảnh chú chó rơi vào đúng cell này. Từ cell ta sẽ xác định các anchor boxes bao quanh hình ảnh chú chó.
   ![image](https://github.com/khanhjt/Doc_Nautilus/assets/105477211/2a4293dd-8b65-4c0b-9ea5-a1c15895bdeb)
 # Hàm loss
-$$ \begin{aligned}
-\mathcal{L}_\text{loc} &= \lambda_\text{coord} \sum_{i=0}^{S^2} \sum_{j=0}^B \mathbb{1}_{ij}^\text{obj} [(x_i - \hat{x}_i)^2 + (y_i - \hat{y}_i)^2 + (\sqrt{w_i} - \sqrt{\hat{w}_i})^2 + (\sqrt{h_i} - \sqrt{\hat{h}_i})^2 ] \\
-\mathcal{L}_\text{cls}  &= \underbrace{\sum_{i=0}^{S^2} \sum_{j=0}^B \big( \mathbb{1}_{ij}^\text{obj} + \lambda_\text{noobj} (1 - \mathbb{1}_{ij}^\text{obj})\big) (C_{ij} - \hat{C}_{ij})^2}_{\text{cell contain object}} + \underbrace{\sum_{i=0}^{S^2} \sum_{c \in \mathcal{C}} \mathbb{1}_i^\text{obj} (p_i(c) - \hat{p}_i(c))^2}_{\text{probability distribution classes}}\\
-\mathcal{L} &= \mathcal{L}_\text{loc} + \mathcal{L}_\text{cls}
-\end{aligned}$$
+     ![Screenshot from 2024-01-02 10-14-08](https://github.com/khanhjt/Doc_Nautilus/assets/105477211/2cb45e0f-d36e-4469-b852-73a8443362ba)
+
+
 Trong đó: 
 * $$\mathbb{1}_i^\text{obj}$$ hàm indicator có giá trị 0,1 nhằm xác định xem cell i có chứa vật thể hay không. Bằng 1 nếu chứa vật thể và 0 nếu không chứa.
-* $$ \mathbb{1}_{ij}^\text{obj}$$ Cho biết bounding box thứ j của cell i có phải là bouding box của vật thể được dự đoán hay không?
+* $$\mathbb{1}_{ij}^\text{obj}$$ Cho biết bounding box thứ j của cell i có phải là bouding box của vật thể được dự đoán hay không?
 * $$C_{ij}$$ Điểm tin cậy của ô i , P(contain object) * IoU (predict bbox, ground truth bbox).
 * $$\hat{C}_{ij}$$ : Điểm tự tin dự đoán.
 * C la tập hợp tất cả các lớp
